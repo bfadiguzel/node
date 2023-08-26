@@ -1,0 +1,12 @@
+extends layouts/main-layout.pug
+
+block content 
+    main
+        
+        if users.length > 0
+             each user in users
+                .user-car   
+                    .user-name 
+                        h2 #{user.userName}
+        else 
+            h2 No Users Founds
