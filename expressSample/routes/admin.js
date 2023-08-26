@@ -8,7 +8,7 @@ router.get('/add-product', (req, res, next) => {
     
     <form action ='/admin/add-product' method='POST'>
         <input type='text' name='title'/>
-        <button type='submit'>Add Product!</button>
+        <button type='submit'>Adsd Product!</button>
     </form>
     
     `)
