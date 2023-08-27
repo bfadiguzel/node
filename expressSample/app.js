@@ -3,9 +3,10 @@ const rootDir = require('./utill/path')
 const express = require('express')
 const bodyParser = require('body-parser')
 
-const adminData = require('./routes/admin')
+const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 
+const  errorController = require('./controller/error')
 
 const app = express()
 
@@ -21,13 +22,11 @@ app.use('/', (req, res, next) => {
     next() // -> it goes another middleware
 })*/
 
-app.use('/admin', adminData.routes)
+app.use('/admin', adminRoutes)
 
 app.use(shopRoutes)
 
 
-app.use((req, res, next) => {
-    res.status(404).render('404', {pageTitle:"Page Not Found"})
-})
+app.use(errorController.get404)
 
 app.listen(3000)
