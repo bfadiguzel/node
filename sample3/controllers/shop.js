@@ -1,5 +1,6 @@
 const Product = require('../models/product');
 const Cart = require('../models/cart');
+const Order = require('../models/order');
 
 exports.getProducts = (req, res, next) => {
   Product.findAll()
@@ -78,7 +79,7 @@ exports.postCart = async (req, res, next) => {
   try {
     const cart = await req.user.getCart();
 
-
+    //console.log("@@@@@@@@@@@@@: "+ JSON.stringify(cart))
     const products = await cart.getProducts({ where: { id: prodID } });
     let product = products.length > 0 ? products[0] : null
 
@@ -110,14 +111,30 @@ exports.postCartDeleteProduct = async (req, res, next) => {
   await product[0].cartItem.destroy()
 
 
- /* await product.cartItem.destroy({
-    where: {
-      productId: prodId,
-      cartId: cart.id
-    }
-  })*/
+  /* await product.cartItem.destroy({
+     where: {
+       productId: prodId,
+       cartId: cart.id
+     }
+   })*/
   res.redirect('/cart')
 };
+
+
+exports.postOrder = async (req, res, next) => {
+ 
+  const cart = await req.user.getCart()
+  const products = await cart.getProducts()
+  const order = await req.user.createOrder()
+  console.log("@@@@@@@@: "+ order.addProducts(products.map(product => {
+    product.orderItem = {quantity: product.cartItem.quantity}
+  })).then(result => console.log("@@@@@@@@@@@@@@: "+result)))
+  await order.addProducts(products.map(product => {
+    product.orderItem = {quantity: product.cartItem.quantity}
+  }))
+  await cart.setProducts(null)
+  res.redirect('/')   
+}
 
 exports.getOrders = (req, res, next) => {
   res.render('shop/orders', {

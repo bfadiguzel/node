@@ -45,6 +45,7 @@ Cart.belongsTo(User)
 User.hasOne(Cart)
 
 Cart.belongsToMany(Product, { through: CartItem })    // -> this relations between cart adn product will store in CartItem
+Product.belongsToMany(Cart, { through: CartItem })    // -> this relations between cart adn product will store in CartItem
 
 Order.belongsTo(User)
 User.hasMany(Order)
@@ -52,7 +53,7 @@ Order.belongsToMany(Product, {through: OrderItem})
 
 sequelize
     //{force: true} create all the tables again
-    .sync({force: true})
+    .sync()
     .then(result => {
         return User.findByPk(1)
 
@@ -62,9 +63,8 @@ sequelize
             return User.create({ name: "max", email: "max@gmail.com" })
         return user
     })
-    .then(user => {
-        console.log(user)
-        if (!user.getCart())
+    .then(user => {        
+        if (user.getCart() === {})
             return user.createCart()
         return user.getCart()
     })
