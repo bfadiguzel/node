@@ -1,4 +1,70 @@
-const mongodb = require('mongodb')
+const mongoose = require('mongoose')
+
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
+  name: {
+    type: String,
+    require: true
+  },
+  email: {
+    type: String,
+    require: true
+  },
+  cart: {
+    items: [{ productId: { type: Schema.Types.ObjectId, ref: 'Product', required: true }, quantity: { type: Number, required: true } }]
+  }
+})
+
+userSchema.methods.addToCart = async function (product) {
+
+  let cartProductIndex = this.cart.items.findIndex(cp => {
+    return JSON.stringify(cp.productId) == JSON.stringify(product._id)
+  })
+
+
+  let quantityValue = 1
+  let updatedCartItems = [...this.cart.items];
+
+  if (cartProductIndex >= 0) {
+    quantityValue = this.cart.items[cartProductIndex].quantity + 1
+    updatedCartItems[cartProductIndex].quantity = quantityValue
+  }
+  else {
+    updatedCartItems.push({ productId: product._id, quantity: quantityValue })
+  }
+
+
+
+  const updatedCart = { items: updatedCartItems }
+  this.cart = updatedCart
+
+  await this.save()
+
+}
+
+userSchema.methods.clearCart = async function(){
+  this.cart.items = []
+  await this.save()
+}
+
+
+userSchema.methods.removeFromCart = async function(productId){
+  const updatedCartItem = this.cart.items.filter(item=>{
+    return JSON.stringify(item.productId) !== JSON.stringify(productId)
+  })
+  this.cart.items = updatedCartItem
+  await this.save()
+}
+
+
+
+
+
+module.exports = mongoose.model('User', userSchema)
+
+
+/*const mongodb = require('mongodb')
 const getDb = require('../util/database').getDb
 const mongoClient = mongodb.MongoClient
 
@@ -88,5 +154,5 @@ class User {
     return await db.collection('users').find({ _id: new mongodb.ObjectId(userId) }).next()
   }
 
-}
-module.exports = User
+}*/
+//module.exports = User
