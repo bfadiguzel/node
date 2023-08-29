@@ -79,7 +79,7 @@ exports.postCart = async (req, res, next) => {
   try {
     const cart = await req.user.getCart();
 
-    //console.log("@@@@@@@@@@@@@: "+ JSON.stringify(cart))
+    console.log("@@@@@@@@@@@@@: " + JSON.stringify(cart))
     const products = await cart.getProducts({ where: { id: prodID } });
     let product = products.length > 0 ? products[0] : null
 
@@ -122,24 +122,25 @@ exports.postCartDeleteProduct = async (req, res, next) => {
 
 
 exports.postOrder = async (req, res, next) => {
- 
+
   const cart = await req.user.getCart()
   const products = await cart.getProducts()
   const order = await req.user.createOrder()
-  console.log("@@@@@@@@: "+ order.addProducts(products.map(product => {
-    product.orderItem = {quantity: product.cartItem.quantity}
-  })).then(result => console.log("@@@@@@@@@@@@@@: "+result)))
-  await order.addProducts(products.map(product => {
-    product.orderItem = {quantity: product.cartItem.quantity}
-  }))
+ 
+  await products.map(product => {
+    order.addProduct(product, { through: { quantity: product.cartItem.quantity } })
+  })
   await cart.setProducts(null)
-  res.redirect('/')   
+  res.redirect('/orders')
 }
 
-exports.getOrders = (req, res, next) => {
+exports.getOrders = async (req, res, next) => {
+  const orders = await req.user.getOrders({include: ['products']})
+  
   res.render('shop/orders', {
     path: '/orders',
-    pageTitle: 'Your Orders'
+    pageTitle: 'Your Orders',
+    orders:orders
   });
 };
 

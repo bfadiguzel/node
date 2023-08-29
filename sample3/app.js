@@ -40,16 +40,15 @@ app.use(errorController.get404);
 
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' })
 User.hasMany(Product)
-
 Cart.belongsTo(User)
 User.hasOne(Cart)
 
 Cart.belongsToMany(Product, { through: CartItem })    // -> this relations between cart adn product will store in CartItem
-Product.belongsToMany(Cart, { through: CartItem })    // -> this relations between cart adn product will store in CartItem
 
 Order.belongsTo(User)
 User.hasMany(Order)
 Order.belongsToMany(Product, {through: OrderItem})
+
 
 sequelize
     //{force: true} create all the tables again
